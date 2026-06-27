@@ -1,0 +1,78 @@
+{
+  "global": {
+    "success": 6,
+    "failure": 0
+  },
+  "forms": {
+    "free-n8n-templates": {
+      "title": "n8n Templates",
+      "success": 3,
+      "failure": 0
+    },
+    "make-templates": {
+      "title": "Make.com Templates",
+      "success": 1,
+      "failure": 0
+    },
+    "prompts-pdf": {
+      "title": "Prompt PDF",
+      "success": 1,
+      "failure": 0
+    },
+    "alex-hormozi-100m-offers": {
+      "title": "Alex Hormozi $100M Offers Ebook",
+      "success": 1,
+      "failure": 0
+    }
+  },
+  "submissions": [
+    {
+      "formId": "alex-hormozi-100m-offers",
+      "formTitle": "Alex Hormozi $100M Offers Ebook",
+      "email": "athik@gmail.com",
+      "tag": "book",
+      "date": "6/9/2026, 6:15:09 PM",
+      "status": "success"
+    },
+    {
+      "formId": "prompts-pdf",
+      "formTitle": "Prompt PDF",
+      "email": "pdf@gmail.com",
+      "tag": "Pdf",
+      "date": "6/4/2026, 4:38:15 PM",
+      "status": "success"
+    },
+    {
+      "formId": "free-n8n-templates",
+      "formTitle": "n8n Templates",
+      "email": "asdfwe@gmail.com",
+      "tag": "sfwe",
+      "date": "5/25/2026, 6:18:57 PM",
+      "status": "success"
+    },
+    {
+      "formId": "free-n8n-templates",
+      "formTitle": "n8n Templates",
+      "email": "two@gmail.com",
+      "tag": "two",
+      "date": "5/25/2026, 6:15:01 PM",
+      "status": "success"
+    },
+    {
+      "formId": "free-n8n-templates",
+      "formTitle": "n8n Templates",
+      "email": "admin@gmail.com",
+      "tag": "n8n test",
+      "date": "5/25/2026, 6:13:55 PM",
+      "status": "success"
+    },
+    {
+      "formId": "make-templates",
+      "formTitle": "Make.com Templates",
+      "email": "new@gmail.com",
+      "tag": "new page ",
+      "date": "5/25/2026, 6:12:13 PM",
+      "status": "success"
+    }
+  ]
+}

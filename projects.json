@@ -1,0 +1,65 @@
+[
+  {
+    "id": 1,
+    "name": "E-coomerce Shop - Find Your Product",
+    "img": "https://i.ibb.co/CQgwDLR/halal-jibika.jpg",
+    "description": "Job searching platform with advanced filtering and user authentication.",
+    "technology": ["Next.js", "Tailwind CSS", "Authjs"],
+    "liveLink": "https://e-coomerce-project.vercel.app/",
+    "codeLink": "https://github.com/MdAthikhasan/e-coomerce-project"
+  },
+  {
+    "id": 2,
+    "name": "Personal Website",
+    "img": "https://i.ibb.co/sm88m9R/portfolio.jpg",
+    "description": "Personal portfolio showcasing my projects and skills.",
+    "technology": ["React.js", "Tailwind CSS"],
+    "liveLink": "https://mamu-seven.vercel.app/",
+    "codeLink": "https://github.com/MdAthikhasan/mamu"
+  },
+  {
+    "id": 3,
+    "name": "Bou University Design",
+    "img": "https://i.ibb.co/SwrJm6d/todo-app.jpg",
+    "description": "Bangladesh Open University design project with modern UI.",
+    "technology": ["React.js", "Bootstrap"],
+    "liveLink": "https://bou-university-design.vercel.app/",
+    "codeLink": "https://github.com/MdAthikhasan/bou-university-design"
+  },
+  {
+    "id": 4,
+    "name": "Bank Website",
+    "img": "https://i.ibb.co/VmW5dBC/islamic-education.jpg",
+    "description": "Bank platform focused on Practicing purpuse.",
+    "technology": ["React.js", "Tailwind CSS"],
+    "liveLink": "https://bank-app-pearl.vercel.app/",
+    "codeLink": "https://github.com/MdAthikhasan/Bank-app-"
+  },
+  {
+    "id": 5,
+    "name": "Task Management Todo app",
+    "img": "https://i.ibb.co/JzFRZ9p/bank-website.jpg",
+    "description": "Modern banking website with transaction features.",
+    "technology": ["React", "Tailwind CSS"],
+    "liveLink": "https://task-management-jet.vercel.app/",
+    "codeLink": "https://github.com/MdAthikhasan/Task-management"
+  },
+  {
+    "id": 6,
+    "name": "Dua page",
+    "img": "https://imgur.com/a/3DVee22",
+    "description": "A dua page where practical muslim can read dua.",
+    "technology": ["Next js", "Tailwind CSS"],
+    "liveLink": "https://assignment-44f2.vercel.app/",
+    "codeLink": "https://github.com/MdAthikhasan/assignment"
+  },
+  {
+    "id": 7,
+    "name": "Roadmap app",
+    "img": "https://imgur.com/a/2Pt1E48",
+    "description": "Modern roadmap-app for knowing user feedback.",
+    "technology": ["React", "Tailwind CSS"],
+    "liveLink": "https://roadmapapp-front-end.vercel.app/",
+    "codeLink": "https://github.com/MdAthikhasan/roadmapapp-front-end"
+  }
+]
