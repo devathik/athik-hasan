@@ -10,30 +10,62 @@ import SettingsTab from "./components/SettingsTab";
 export default function DashboardPage() {
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState("dashboard"); // "dashboard" or "settings"
+  const [activeProvider, setActiveProvider] = useState("Gemini");
   const [apiKey, setApiKey] = useState("");
-  const [savedKey, setSavedKey] = useState("");
+  const [model, setModel] = useState("");
+  const [customModel, setCustomModel] = useState("");
   const [status, setStatus] = useState("");
   const [showKey, setShowKey] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("google_user_profile");
-    const storedKey = localStorage.getItem("viral_thread_api_key") || "";
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
-    setApiKey(storedKey);
-    setSavedKey(storedKey);
+    const provider = localStorage.getItem("active_api_provider") || "Gemini";
+    setActiveProvider(provider);
+    
+    const key = localStorage.getItem(`api_key_${provider.toLowerCase()}`) || "";
+    setApiKey(key);
+    
+    const savedModel = localStorage.getItem(`api_model_${provider.toLowerCase()}`) || "";
+    setModel(savedModel);
+    
+    const savedCustom = localStorage.getItem(`api_model_custom_${provider.toLowerCase()}`) || "";
+    setCustomModel(savedCustom);
   }, []);
+
+  const handleProviderChange = (newProvider) => {
+    setActiveProvider(newProvider);
+    const key = localStorage.getItem(`api_key_${newProvider.toLowerCase()}`) || "";
+    setApiKey(key);
+    
+    const savedModel = localStorage.getItem(`api_model_${newProvider.toLowerCase()}`) || "";
+    setModel(savedModel);
+    
+    const savedCustom = localStorage.getItem(`api_model_custom_${newProvider.toLowerCase()}`) || "";
+    setCustomModel(savedCustom);
+  };
 
   const handleSave = () => {
     if (!apiKey.trim()) {
-      setStatus("Enter a valid API key before saving.");
+      setStatus(`Enter a valid API key for ${activeProvider} before saving.`);
+      setTimeout(() => setStatus(""), 3000);
       return;
     }
-    localStorage.setItem("viral_thread_api_key", apiKey.trim());
-    setSavedKey(apiKey.trim());
-    setStatus("API key saved locally.");
+    
+    localStorage.setItem("active_api_provider", activeProvider);
+    localStorage.setItem(`api_key_${activeProvider.toLowerCase()}`, apiKey.trim());
+    localStorage.setItem(`api_model_${activeProvider.toLowerCase()}`, model);
+    localStorage.setItem(`api_model_custom_${activeProvider.toLowerCase()}`, customModel.trim());
+    
+    // For backwards compatibility:
+    if (activeProvider === "Gemini") {
+      localStorage.setItem("viral_thread_api_key", apiKey.trim());
+    }
+
+    setStatus(`Settings saved locally for ${activeProvider}.`);
     setTimeout(() => setStatus(""), 3000);
   };
 
@@ -42,6 +74,8 @@ export default function DashboardPage() {
     setUser(null);
     window.dispatchEvent(new Event("local-user-change"));
   };
+
+  const isKeySaved = !!localStorage.getItem(`api_key_${activeProvider.toLowerCase()}`);
 
   if (!user) {
     return <AccessRestricted />;
@@ -90,12 +124,18 @@ export default function DashboardPage() {
       {/* Main Content Area */}
       <main className="flex-1 overflow-y-auto p-6 sm:p-10 relative z-10">
         {activeTab === "dashboard" ? (
-          <DashboardTab user={user} savedKey={savedKey} />
+          <DashboardTab user={user} savedKey={isKeySaved} activeProvider={activeProvider} />
         ) : (
           <SettingsTab
             user={user}
+            activeProvider={activeProvider}
+            setActiveProvider={handleProviderChange}
             apiKey={apiKey}
             setApiKey={setApiKey}
+            model={model}
+            setModel={setModel}
+            customModel={customModel}
+            setCustomModel={setCustomModel}
             showKey={showKey}
             setShowKey={setShowKey}
             handleSave={handleSave}

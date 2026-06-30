@@ -142,7 +142,13 @@ export default function ThreadBuilder({
                 Gemini
               </option>
               <option value="OpenAI" className="bg-slate-950 text-white">
-                OpenAI-compatible
+                OpenAI (GPT)
+              </option>
+              <option value="Claude" className="bg-slate-950 text-white">
+                Claude (Anthropic)
+              </option>
+              <option value="OpenRouter" className="bg-slate-950 text-white">
+                OpenRouter
               </option>
             </select>
           </div>

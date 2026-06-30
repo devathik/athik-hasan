@@ -27,14 +27,20 @@ const postCounts = ["3 Posts", "4 Posts", "5 Posts", "6 Posts", "7 Posts", "8 Po
 
 const detectProvider = (key) => {
   const normalizedKey = key.trim();
-  if (!normalizedKey) return "Auto";
+  if (!normalizedKey) return "Gemini";
+  if (/^sk-or-v1-/.test(normalizedKey) || /openrouter/i.test(normalizedKey)) {
+    return "OpenRouter";
+  }
+  if (/^sk-ant-/.test(normalizedKey) || /claude/i.test(normalizedKey) || /anthropic/i.test(normalizedKey)) {
+    return "Claude";
+  }
   if (/^(AIza|AQ\.)/i.test(normalizedKey) || /gemini/i.test(normalizedKey)) {
     return "Gemini";
   }
   if (/^sk-[A-Za-z0-9]/.test(normalizedKey) || /openai/i.test(normalizedKey)) {
     return "OpenAI";
   }
-  return "Auto";
+  return "Gemini";
 };
 
 const getNumericPostCount = (countStr) => {
@@ -49,7 +55,8 @@ export default function ViralThreadGeneratorPage() {
   const [postCount, setPostCount] = useState("5 Posts");
   const [apiKey, setApiKey] = useState("");
   const [storedApiKey, setStoredApiKey] = useState("");
-  const [provider, setProvider] = useState("Auto");
+  const [activeProvider, setActiveProvider] = useState("Gemini");
+  const [configuredModel, setConfiguredModel] = useState("");
   const [thread, setThread] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -58,16 +65,35 @@ export default function ViralThreadGeneratorPage() {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    const savedKey = localStorage.getItem("viral_thread_api_key") || "";
-    setStoredApiKey(savedKey);
+    const provider = localStorage.getItem("active_api_provider") || "Gemini";
+    setActiveProvider(provider);
+    
+    let key = localStorage.getItem(`api_key_${provider.toLowerCase()}`) || "";
+    if (!key && provider === "Gemini") {
+      key = localStorage.getItem("viral_thread_api_key") || "";
+    }
+    setStoredApiKey(key);
+
+    let modelId = localStorage.getItem(`api_model_${provider.toLowerCase()}`) || "";
+    const customModelId = localStorage.getItem(`api_model_custom_${provider.toLowerCase()}`) || "";
+    if (modelId === "Custom..." && customModelId) {
+      modelId = customModelId;
+    }
+    if (!modelId) {
+      if (provider === "Gemini") modelId = "gemini-2.5-flash";
+      else if (provider === "OpenAI") modelId = "gpt-4o-mini";
+      else if (provider === "Claude") modelId = "claude-3-5-haiku-20241022";
+      else if (provider === "OpenRouter") modelId = "google/gemini-2.5-flash:free";
+    }
+    setConfiguredModel(modelId);
   }, []);
 
   const summary = useMemo(
     () =>
       storedApiKey
-        ? "Your API key is ready. Use the dashboard to save or update your key."
-        : "No saved API key found. Visit the dashboard to store your key, or paste one below for one-time use.",
-    [storedApiKey],
+        ? `API configured via Dashboard (${activeProvider}: ${configuredModel}).`
+        : `No saved API key found for ${activeProvider}. Visit the dashboard settings to store your key.`,
+    [storedApiKey, activeProvider, configuredModel],
   );
 
   useEffect(() => {
@@ -149,10 +175,12 @@ export default function ViralThreadGeneratorPage() {
     setSuccessMessage("");
     setCopiedIndex(null);
 
+    const resolvedProvider = apiKey.trim() ? detectProvider(apiKey) : activeProvider;
     const chosenKey = apiKey.trim() || storedApiKey.trim();
+    
     if (!chosenKey) {
       setError(
-        "Please add your model API key on the dashboard or paste it here.",
+        `Please configure your ${resolvedProvider} API key on the dashboard settings page or paste one below.`,
       );
       return;
     }
@@ -162,22 +190,46 @@ export default function ViralThreadGeneratorPage() {
       return;
     }
 
-    const resolvedProvider =
-      provider === "Auto" ? detectProvider(chosenKey) : provider;
-    const isGeminiProvider = resolvedProvider === "Gemini";
-    setLoading(true);
+    let resolvedModel = configuredModel;
+    if (apiKey.trim()) {
+      if (resolvedProvider === "Gemini") resolvedModel = "gemini-2.5-flash";
+      else if (resolvedProvider === "OpenAI") resolvedModel = "gpt-4o-mini";
+      else if (resolvedProvider === "Claude") resolvedModel = "claude-3-5-haiku-20241022";
+      else if (resolvedProvider === "OpenRouter") resolvedModel = "google/gemini-2.5-flash:free";
+    }
 
+    setLoading(true);
     const numericPostCount = getNumericPostCount(postCount);
+
+    const handleResponseJson = async (response) => {
+      let data = {};
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        throw new Error(
+          text.slice(0, 150) || `HTTP error status ${response.status}`
+        );
+      }
+      if (!response.ok) {
+        throw new Error(
+          data?.error?.message ||
+            data?.error?.status ||
+            `API error. Status: ${response.status}`
+        );
+      }
+      return data;
+    };
 
     try {
       let generated = "";
       let isTruncated = false;
 
-      if (isGeminiProvider) {
+      if (resolvedProvider === "Gemini") {
         const ai = new GoogleGenAI({ apiKey: chosenKey });
         const response = await ai.models.generateContent({
-          model: GEMINI_DEFAULT_MODEL,
-
+          model: resolvedModel || "gemini-2.5-flash",
           contents: `You are a viral thread generator. Create 1 hook post and exactly ${numericPostCount} subsequent thread posts in ${language} with a ${tone} tone. Keep the posts clean and separate each post with a line containing exactly "[POST_SEPARATOR]" (without quotes). Do not write anything else on that line.\n\nTopic: ${prompt.trim()}`,
           config: {
             temperature: 0.8,
@@ -187,21 +239,18 @@ export default function ViralThreadGeneratorPage() {
 
         const candidate = response.candidates?.[0];
         generated = response.text?.trim() || "";
-          
-       console.log("candidate", candidate)
-       console.log("test response data" ,response, )
-
+        
         if (candidate?.finishReason === "MAX_TOKENS") {
           isTruncated = true;
         }
-      } else {
+      } else if (resolvedProvider === "OpenAI") {
         const endpoint = "https://api.openai.com/v1/chat/completions";
         const headers = {
           "Content-Type": "application/json",
           Authorization: `Bearer ${chosenKey}`,
         };
         const body = {
-          model: OPENAI_DEFAULT_MODEL,
+          model: resolvedModel || "gpt-4o-mini",
           temperature: 0.8,
           max_tokens: 2048,
           messages: [
@@ -222,29 +271,65 @@ export default function ViralThreadGeneratorPage() {
           body: JSON.stringify(body),
         });
 
-        // Handle non-JSON responses from proxies or errors cleanly
-        let data = {};
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-          data = await response.json();
-        } else {
-          const text = await response.text();
-          throw new Error(
-            text.slice(0, 150) || `HTTP error status ${response.status}`
-          );
-        }
-
-        if (!response.ok) {
-          throw new Error(
-            data?.error?.message ||
-              data?.error?.status ||
-              "Failed to generate thread. Please verify your API key and endpoint settings and try again.",
-          );
-        }
-
+        const data = await handleResponseJson(response);
         generated = data?.choices?.[0]?.message?.content?.trim() || "";
         const finishReason = data?.choices?.[0]?.finish_reason;
         if (finishReason === "length") isTruncated = true;
+      } else if (resolvedProvider === "OpenRouter") {
+        const endpoint = "https://openrouter.ai/api/v1/chat/completions";
+        const headers = {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${chosenKey}`,
+        };
+        const body = {
+          model: resolvedModel || "google/gemini-2.5-flash:free",
+          messages: [
+            {
+              role: "user",
+              content: `You are a viral thread generator. Create 1 hook post and exactly ${numericPostCount} subsequent thread posts in ${language} with a ${tone} tone. Keep the posts clean and separate each post with a line containing exactly "[POST_SEPARATOR]" (without quotes). Do not write anything else on that line.\n\nTopic: ${prompt.trim()}`,
+            },
+          ],
+        };
+
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers,
+          body: JSON.stringify(body),
+        });
+
+        const data = await handleResponseJson(response);
+        generated = data?.choices?.[0]?.message?.content?.trim() || "";
+        const finishReason = data?.choices?.[0]?.finish_reason;
+        if (finishReason === "length") isTruncated = true;
+      } else if (resolvedProvider === "Claude") {
+        const endpoint = "https://api.anthropic.com/v1/messages";
+        const headers = {
+          "Content-Type": "application/json",
+          "x-api-key": chosenKey,
+          "anthropic-version": "2023-06-01",
+          "dangerously-allow-developer-only-headers-for-cors": "true",
+        };
+        const body = {
+          model: resolvedModel || "claude-3-5-haiku-20241022",
+          max_tokens: 2048,
+          messages: [
+            {
+              role: "user",
+              content: `You are a viral thread generator. Create 1 hook post and exactly ${numericPostCount} subsequent thread posts in ${language} with a ${tone} tone. Keep the posts clean and separate each post with a line containing exactly "[POST_SEPARATOR]" (without quotes). Do not write anything else on that line.\n\nTopic: ${prompt.trim()}`,
+            },
+          ],
+        };
+
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers,
+          body: JSON.stringify(body),
+        });
+
+        const data = await handleResponseJson(response);
+        generated = data?.content?.[0]?.text?.trim() || "";
+        const finishReason = data?.stop_reason;
+        if (finishReason === "max_tokens") isTruncated = true;
       }
 
       if (!generated) {
@@ -328,8 +413,8 @@ export default function ViralThreadGeneratorPage() {
             postCounts={postCounts}
             apiKey={apiKey}
             setApiKey={setApiKey}
-            provider={provider}
-            setProvider={setProvider}
+            provider={activeProvider}
+            setProvider={setActiveProvider}
             quickExamples={quickExamples}
             handleExample={handleExample}
             summary={summary}

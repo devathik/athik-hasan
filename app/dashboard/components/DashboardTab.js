@@ -1,7 +1,7 @@
 import { FiExternalLink, FiLayers } from "react-icons/fi";
 import { TOOLS } from "../../tools/config/tools";
 
-export default function DashboardTab({ user, savedKey }) {
+export default function DashboardTab({ user, savedKey, activeProvider }) {
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       <div>
@@ -22,7 +22,7 @@ export default function DashboardTab({ user, savedKey }) {
         </div>
         <div className="rounded-3xl border border-white/20 bg-slate-900/40 p-5 backdrop-blur-xl">
           <span className="text-2xl">🔑</span>
-          <p className="text-xs uppercase tracking-wider text-gray-400 mt-2">Gemini API Key</p>
+          <p className="text-xs uppercase tracking-wider text-gray-400 mt-2">{activeProvider || "Gemini"} API Key</p>
           <p className={`text-sm font-bold mt-2 ${savedKey ? "text-emerald-400" : "text-amber-400"}`}>
             {savedKey ? "✓ Stored Successfully" : "✗ Not Configured"}
           </p>

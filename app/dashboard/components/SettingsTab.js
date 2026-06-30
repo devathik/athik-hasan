@@ -1,14 +1,35 @@
 import { FiSettings, FiUser } from "react-icons/fi";
 
+const PROVIDER_MODELS = {
+  Gemini: ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro", "Custom..."],
+  OpenAI: ["gpt-4o-mini", "gpt-4o", "gpt-3.5-turbo", "Custom..."],
+  Claude: ["claude-3-5-sonnet-20241022", "claude-3-5-haiku-20241022", "claude-3-opus-20240229", "Custom..."],
+  OpenRouter: [
+    "google/gemini-2.5-flash:free",
+    "meta-llama/llama-3-8b-instruct:free",
+    "mistralai/mistral-7b-instruct:free",
+    "Custom...",
+  ],
+};
+
 export default function SettingsTab({
   user,
+  activeProvider,
+  setActiveProvider,
   apiKey,
   setApiKey,
+  model,
+  setModel,
+  customModel,
+  setCustomModel,
   showKey,
   setShowKey,
   handleSave,
   status,
 }) {
+  const modelsList = PROVIDER_MODELS[activeProvider] || [];
+  const isCustomModel = !modelsList.includes(model) || model === "Custom...";
+
   return (
     <div className="max-w-3xl mx-auto space-y-8">
       <div>
@@ -26,34 +47,93 @@ export default function SettingsTab({
             <span>API Configuration</span>
           </h2>
           <p className="text-gray-400 text-xs mt-1 leading-relaxed">
-            Enter your model API key here. This key will be used locally by the Viral Thread Generator.
+            Configure your active AI provider, keys, and model preferences.
           </p>
         </div>
 
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <label className="text-sm font-semibold text-white">Model API Key</label>
-            <button
-              type="button"
-              onClick={() => setShowKey(!showKey)}
-              className="text-xs uppercase tracking-[0.15em] text-purple-300 hover:text-purple-100 transition"
+          {/* Provider Select */}
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-white">Active AI Provider</label>
+            <select
+              value={activeProvider}
+              onChange={(e) => setActiveProvider(e.target.value)}
+              className="w-full rounded-2xl border border-white/20 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
             >
-              {showKey ? "Hide Key" : "Show Key"}
-            </button>
+              <option value="Gemini" className="bg-slate-950 text-white">Google Gemini</option>
+              <option value="OpenAI" className="bg-slate-950 text-white">OpenAI (GPT)</option>
+              <option value="Claude" className="bg-slate-950 text-white">Anthropic Claude</option>
+              <option value="OpenRouter" className="bg-slate-950 text-white">OpenRouter</option>
+            </select>
           </div>
-          <input
-            type={showKey ? "text" : "password"}
-            value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
-            placeholder="Paste your model API key here"
-            className="w-full rounded-2xl border border-white/20 bg-slate-950/80 px-4 py-3.5 text-sm text-white outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition duration-200"
-          />
+
+          {/* API Key Input */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-semibold text-white">
+                {activeProvider} API Key
+              </label>
+              <button
+                type="button"
+                onClick={() => setShowKey(!showKey)}
+                className="text-xs uppercase tracking-[0.15em] text-purple-300 hover:text-purple-100 transition"
+              >
+                {showKey ? "Hide Key" : "Show Key"}
+              </button>
+            </div>
+            <input
+              type={showKey ? "text" : "password"}
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              placeholder={`Enter your ${activeProvider} API key`}
+              className="w-full rounded-2xl border border-white/20 bg-slate-950/80 px-4 py-3.5 text-sm text-white outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition duration-200"
+            />
+          </div>
+
+          {/* Model Select */}
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-white">Default Model</label>
+            <select
+              value={isCustomModel ? "Custom..." : model}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val === "Custom...") {
+                  setModel("Custom...");
+                  setCustomModel("");
+                } else {
+                  setModel(val);
+                }
+              }}
+              className="w-full rounded-2xl border border-white/20 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
+            >
+              {modelsList.map((m) => (
+                <option key={m} value={m} className="bg-slate-950 text-white">
+                  {m}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Custom Model Text Input */}
+          {(isCustomModel || model === "Custom...") && (
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-white">Custom Model ID</label>
+              <input
+                type="text"
+                value={customModel}
+                onChange={(e) => setCustomModel(e.target.value)}
+                placeholder="e.g. meta-llama/llama-3-70b-instruct"
+                className="w-full rounded-2xl border border-white/20 bg-slate-950/80 px-4 py-3.5 text-sm text-white outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition duration-200"
+              />
+            </div>
+          )}
+
           <button
             type="button"
             onClick={handleSave}
-            className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-pink-500 to-purple-500 px-6 py-3 text-sm font-semibold text-white transition hover:brightness-110 shadow-lg shadow-pink-500/10 active:scale-[0.98]"
+            className="w-full sm:w-auto inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-pink-500 to-purple-500 px-6 py-3 text-sm font-semibold text-white transition hover:brightness-110 shadow-lg shadow-pink-500/10 active:scale-[0.98]"
           >
-            Save API Key
+            Save API Settings
           </button>
         </div>
 
@@ -66,7 +146,7 @@ export default function SettingsTab({
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-xs text-gray-400 leading-relaxed">
           <p className="font-semibold text-white">Privacy Note:</p>
           <p className="mt-1">
-            Your keys are stored entirely in your local browser storage and never sent to any server other than the direct Google/OpenAI endpoints.
+            Your keys are stored entirely in your local browser storage and never sent to any server other than the direct AI model provider endpoints.
           </p>
         </div>
       </div>
