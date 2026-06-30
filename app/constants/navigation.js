@@ -1,30 +1,38 @@
 export const navigationLinks = [
   {
-    path: '/',
-    label: 'Home'
+    path: "/",
+    label: "Home",
   },
   {
-    path: '/projects',
-    label: 'Projects'
+    path: "/projects",
+    label: "Projects",
   },
   {
-    path: '/blog',
-    label: 'Blogs'
+    path: "/blog",
+    label: "Blogs",
   },
   {
-    path: '/resourse',
-    label: 'Resources'
+    path: "/resourse",
+    label: "Resources",
   },
   {
-    path: '/tools',
-    label: 'Tools'
+    path: "/tools",
+    label: "Tools",
   },
   {
-    path: '/about',
-    label: 'About'
+    path: "/dashboard",
+    label: "Dashboard",
   },
   {
-    path: '/contact',
-    label: 'Contact'
-  }
-]; 
+    path: "/login",
+    label: "Login",
+  },
+  {
+    path: "/about",
+    label: "About",
+  },
+  {
+    path: "/contact",
+    label: "Contact",
+  },
+];

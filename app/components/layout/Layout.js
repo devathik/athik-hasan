@@ -23,6 +23,25 @@ const Layout = ({ children }) => {
     trackPageView(pathname);
   }, [pathname]);
 
+  const isDashboardRoute = pathname.startsWith('/dashboard');
+
+  if (isDashboardRoute) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-white relative">
+        <AnimatePresence mode="wait">
+          <motion.main
+            key={pathname}
+            className="min-h-screen"
+          >
+            <Suspense fallback={<LoadingSpinner />}>
+              {children}
+            </Suspense>
+          </motion.main>
+        </AnimatePresence>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black relative">
       <Header 
@@ -33,11 +52,6 @@ const Layout = ({ children }) => {
       <AnimatePresence mode="wait">
         <motion.main
           key={pathname}
-          // initial="hidden"
-          // animate="enter"
-          // exit="exit"
-          // variants={pageTransition}
-          // transition={{ duration: 0 }}
           className="pt-20 pb-16 container mx-auto px-4 sm:px-6 lg:px-8 min-h-[90vh]"
         >
           <Suspense fallback={<LoadingSpinner />}>

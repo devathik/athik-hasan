@@ -3,9 +3,14 @@ import { motion } from 'framer-motion';
 import { navigationLinks } from '@/app/constants/navigation';
 
 const Navigation = ({ currentPath }) => {
+  const filteredLinks = navigationLinks.filter((link) => {
+    if (link.path === "/login") return false;
+    return true;
+  });
+
   return (
     <nav className="flex items-center gap-8">
-      {navigationLinks.map((link) => (
+      {filteredLinks.map((link) => (
         <Link
           key={link.path}
           href={link.path}

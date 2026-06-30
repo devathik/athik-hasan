@@ -35,7 +35,7 @@ const itemVariants = {
   }),
 };
 
-const MobileMenu = ({ currentPath, onClose }) => {
+const MobileMenu = ({ currentPath, onClose, user, handleSignOut }) => {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -44,6 +44,11 @@ const MobileMenu = ({ currentPath, onClose }) => {
   }, []);
 
   if (!mounted) return null;
+
+  const filteredLinks = navigationLinks.filter((link) => {
+    if (link.path === "/login" && user) return false;
+    return true;
+  });
 
   return createPortal(
     <motion.div
@@ -101,8 +106,22 @@ const MobileMenu = ({ currentPath, onClose }) => {
           </motion.button>
         </div>
 
+        {user && (
+          <div className="flex items-center gap-3 p-3.5 rounded-2xl border border-white/10 bg-white/5 mt-2">
+            <img
+              src={user.picture}
+              alt={user.name}
+              className="w-11 h-11 rounded-full border-2 border-amber-500 object-cover"
+            />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-white truncate">{user.name}</p>
+              <p className="text-xs text-gray-400 truncate mt-0.5">{user.email}</p>
+            </div>
+          </div>
+        )}
+
         <nav className="mt-6 flex flex-col items-start gap-4">
-          {navigationLinks.map((link, index) => (
+          {filteredLinks.map((link, index) => (
             <motion.div key={link.path} custom={index} variants={itemVariants}>
               <Link
                 href={link.path}
@@ -119,7 +138,28 @@ const MobileMenu = ({ currentPath, onClose }) => {
           ))}
         </nav>
 
-        <div className="mt-auto">{/* <ThemeToggle /> */}</div>
+        <div className="mt-auto pt-6 border-t border-white/10">
+          {user ? (
+            <button
+              type="button"
+              onClick={() => {
+                handleSignOut();
+                onClose();
+              }}
+              className="w-full inline-flex items-center justify-center rounded-xl bg-red-500/10 border border-red-500/20 py-2.5 text-sm font-semibold text-red-400 hover:bg-red-500/20 transition duration-300"
+            >
+              Logout
+            </button>
+          ) : (
+            <Link
+              href="/login"
+              onClick={onClose}
+              className="w-full inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 py-2.5 text-sm font-semibold text-white shadow-lg shadow-purple-500/20 hover:brightness-110 transition duration-300"
+            >
+              Login
+            </Link>
+          )}
+        </div>
 
         {/* Background Patterns */}
         <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden">
