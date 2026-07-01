@@ -45,7 +45,7 @@ const Hero = () => {
                 transition={{ delay: 0.4 }}
                 className="block mt-2 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400"
               >
-                Front-end Developer
+                Software Developer
               </motion.span>
               <motion.span
                 initial={{ opacity: 0, y: 20 }}

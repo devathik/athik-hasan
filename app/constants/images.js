@@ -1,12 +1,12 @@
-import myimg from "./profile-img/profile-img.jpeg";
+import myimg from "./profile-img/profile-img.png";
 import bou from "./project-images/bou.png";
 import btftwo from "./project-images/btf-two.png";
 import btf from "./project-images/btf.png";
 import blogsite from "./project-images/business.png";
 import moraimg from "./project-images/mora.png";
+import realestate from "./project-images/real-estate.png";
 import healthmedical from "./project-images/remediservice.png";
 import sunnahStoreImg from "./project-images/sunnah-store.png";
-import realestate from "./project-images/real-estate.png";
 export const images = {
   profile: myimg,
   author: {
