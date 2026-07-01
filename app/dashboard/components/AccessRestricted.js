@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function AccessRestricted() {
+  const pathname = usePathname();
   return (
     <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center py-20 px-4 relative overflow-hidden">
       {/* Background glow highlights */}
@@ -18,7 +20,7 @@ export default function AccessRestricted() {
           </p>
         </div>
         <Link
-          href="/login"
+          href={`/login?from=${encodeURIComponent(pathname || "/dashboard")}`}
           className="w-full inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 py-3.5 text-sm font-semibold text-white shadow-lg shadow-purple-500/20 transition hover:brightness-110 active:scale-[0.98]"
         >
           Go to Login Page 🔑

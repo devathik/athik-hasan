@@ -75,7 +75,9 @@ export default function DashboardPage() {
     window.dispatchEvent(new Event("local-user-change"));
   };
 
-  const isKeySaved = !!localStorage.getItem(`api_key_${activeProvider.toLowerCase()}`);
+  const isKeySaved = typeof window !== "undefined"
+    ? !!localStorage.getItem(`api_key_${activeProvider.toLowerCase()}`)
+    : false;
 
   if (!user) {
     return <AccessRestricted />;
@@ -146,3 +148,6 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+
+

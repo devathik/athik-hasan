@@ -23,6 +23,8 @@ export default function ThreadBuilder({
   handleGenerate,
   error,
   successMessage,
+  customInstruction,
+  setCustomInstruction,
 }) {
   return (
     <div className="rounded-[32px] border border-white/10 bg-slate-900/80 p-8 shadow-2xl shadow-slate-950/40 backdrop-blur-xl">
@@ -52,6 +54,31 @@ export default function ThreadBuilder({
             onChange={(e) => setPrompt(e.target.value)}
             className="w-full resize-none rounded-3xl border border-white/20 bg-slate-950/80 p-4 text-sm text-white outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
             placeholder="একটি থ্রেড তৈরি করতে এখানে আপনার বিষয় লিখুন..."
+          />
+          <div className="flex flex-wrap gap-2 text-xs text-gray-400">
+            {quickExamples.map((example) => (
+              <button
+                key={example}
+                type="button"
+                onClick={() => handleExample(example)}
+                className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-left text-white/70 transition hover:bg-white/10 hover:text-white"
+              >
+                {example}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <label className="block text-sm font-semibold text-white">
+            Your Prompt (Optional)
+          </label>
+          <textarea
+            rows={3}
+            value={customInstruction}
+            onChange={(e) => setCustomInstruction(e.target.value)}
+            className="w-full resize-none rounded-3xl border border-white/20 bg-slate-950/80 p-4 text-sm text-white outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
+            placeholder="e.g., Avoid emojis, write like a tech founder, use formatting..."
           />
         </div>
 
@@ -161,22 +188,8 @@ export default function ThreadBuilder({
           </div>
         </div>
 
-        <div className="space-y-4">
-          <div className="flex flex-wrap gap-2 text-xs text-gray-400">
-            {quickExamples.map((example) => (
-              <button
-                key={example}
-                type="button"
-                onClick={() => handleExample(example)}
-                className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-left text-white/70 transition hover:bg-white/10 hover:text-white"
-              >
-                {example}
-              </button>
-            ))}
-          </div>
-          <div className="rounded-3xl border border-white/20 bg-slate-950/80 p-5 text-sm text-gray-300">
-            <p>{summary}</p>
-          </div>
+        <div className="rounded-3xl border border-white/20 bg-slate-950/80 p-5 text-sm text-gray-300">
+          <p>{summary}</p>
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

@@ -1,7 +1,7 @@
 import { FiSettings, FiUser } from "react-icons/fi";
 
 const PROVIDER_MODELS = {
-  Gemini: ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro", "Custom..."],
+  Gemini: ["gemini-2.5-flash-lite", "gemini-2.5-flash", "gemini-2.5-pro", "Custom..."],
   OpenAI: ["gpt-4o-mini", "gpt-4o", "gpt-3.5-turbo", "Custom..."],
   Claude: ["claude-3-5-sonnet-20241022", "claude-3-5-haiku-20241022", "claude-3-opus-20240229", "Custom..."],
   OpenRouter: [

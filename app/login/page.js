@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 function decodeJwt(credential) {
   try {
@@ -16,11 +17,16 @@ function decodeJwt(credential) {
 export default function LoginPage() {
   const [user, setUser] = useState(null);
   const [message, setMessage] = useState("");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTarget = searchParams.get("from") || "/dashboard";
 
   useEffect(() => {
     const stored = localStorage.getItem("google_user_profile");
     if (stored) {
       setUser(JSON.parse(stored));
+      router.push(redirectTarget);
+      return;
     }
 
     const script = document.createElement("script");
@@ -44,8 +50,11 @@ export default function LoginPage() {
                 JSON.stringify(userData),
               );
               setUser(userData);
-              setMessage("Signed in successfully.");
+              setMessage("Signed in successfully. Redirecting...");
               window.dispatchEvent(new Event("local-user-change"));
+              setTimeout(() => {
+                router.push(redirectTarget);
+              }, 1000);
             } else {
               setMessage("Google sign-in failed. Please try again.");
             }

@@ -49,7 +49,7 @@ const getNumericPostCount = (countStr) => {
 };
 
 export default function ViralThreadGeneratorPage() {
-  const [prompt, setPrompt] = useState(quickExamples[0]);
+  const [prompt, setPrompt] = useState("");
   const [tone, setTone] = useState("Informational");
   const [language, setLanguage] = useState("Bangla");
   const [postCount, setPostCount] = useState("5 Posts");
@@ -63,6 +63,7 @@ export default function ViralThreadGeneratorPage() {
   const [successMessage, setSuccessMessage] = useState("");
   const [copiedIndex, setCopiedIndex] = useState(null);
   const [posts, setPosts] = useState([]);
+  const [customInstruction, setCustomInstruction] = useState("");
 
   useEffect(() => {
     const provider = localStorage.getItem("active_api_provider") || "Gemini";
@@ -136,16 +137,22 @@ export default function ViralThreadGeneratorPage() {
       }
     }
 
-    // Clean up typical headers and indexes from starts
     const cleaned = parts
-      .map((part) =>
-        part
+      .map((part, index) => {
+        let text = part
           .replace(/^(Post\s*\d+\s*:?)/i, "")
           .replace(/^(\d+\/\d+\s*:?)/, "")
-          .replace(/^(\d+\.\s*)/, "")
-          .replace(/^(১|২|৩|৪|৫|৬|৭|৮|৯|১০)\.\s*/, "") // Bangla numbering
-          .trim(),
-      )
+          .trim();
+        
+        if (index === 0) {
+          // Strip any leading numbers from the hook post
+          text = text
+            .replace(/^(\d+\.\s*)/, "")
+            .replace(/^(১|২|৩|৪|৫|৬|৭|৮|৯|১০)\.\s*/, "")
+            .trim();
+        }
+        return text;
+      })
       .filter(Boolean);
 
     setPosts(cleaned);
@@ -226,11 +233,13 @@ export default function ViralThreadGeneratorPage() {
       let generated = "";
       let isTruncated = false;
 
+      const instructions = `You are a viral thread generator. Create 1 hook post (Between 5-8 words) and exactly ${numericPostCount} subsequent thread posts in ${language} with a ${tone} tone. Keep the posts clean and separate each post with a line containing exactly "[POST_SEPARATOR]" (without quotes). Do not write anything else on that line. Do NOT include any numbering or slashes on the hook post. However, number each of the subsequent thread posts starting from 1 (e.g. "1. ", "2. " or "১. ", "২. " in Bangla) at the beginning of the post. Do NOT use slashes (like "1/") and do NOT wrap the number/title in bold markdown asterisks (avoid "**").${customInstruction.trim() ? `\n\nCustom Guidelines: ${customInstruction.trim()}` : ""}`;
+
       if (resolvedProvider === "Gemini") {
         const ai = new GoogleGenAI({ apiKey: chosenKey });
         const response = await ai.models.generateContent({
           model: resolvedModel || "gemini-2.5-flash",
-          contents: `You are a viral thread generator. Create 1 hook post and exactly ${numericPostCount} subsequent thread posts in ${language} with a ${tone} tone. Keep the posts clean and separate each post with a line containing exactly "[POST_SEPARATOR]" (without quotes). Do not write anything else on that line.\n\nTopic: ${prompt.trim()}`,
+          contents: `${instructions}\n\nTopic: ${prompt.trim()}`,
           config: {
             temperature: 0.8,
             maxOutputTokens: 2048,
@@ -256,7 +265,7 @@ export default function ViralThreadGeneratorPage() {
           messages: [
             {
               role: "system",
-              content: `You are a viral thread generator. Create 1 hook post and exactly ${numericPostCount} subsequent thread posts in ${language} with a ${tone} tone. Keep the posts clean and separate each post with a line containing exactly "[POST_SEPARATOR]" (without quotes). Do not write anything else on that line.`,
+              content: instructions,
             },
             {
               role: "user",
@@ -286,7 +295,7 @@ export default function ViralThreadGeneratorPage() {
           messages: [
             {
               role: "user",
-              content: `You are a viral thread generator. Create 1 hook post and exactly ${numericPostCount} subsequent thread posts in ${language} with a ${tone} tone. Keep the posts clean and separate each post with a line containing exactly "[POST_SEPARATOR]" (without quotes). Do not write anything else on that line.\n\nTopic: ${prompt.trim()}`,
+              content: `${instructions}\n\nTopic: ${prompt.trim()}`,
             },
           ],
         };
@@ -315,7 +324,7 @@ export default function ViralThreadGeneratorPage() {
           messages: [
             {
               role: "user",
-              content: `You are a viral thread generator. Create 1 hook post and exactly ${numericPostCount} subsequent thread posts in ${language} with a ${tone} tone. Keep the posts clean and separate each post with a line containing exactly "[POST_SEPARATOR]" (without quotes). Do not write anything else on that line.\n\nTopic: ${prompt.trim()}`,
+              content: `${instructions}\n\nTopic: ${prompt.trim()}`,
             },
           ],
         };
@@ -422,6 +431,8 @@ export default function ViralThreadGeneratorPage() {
             handleGenerate={handleGenerate}
             error={error}
             successMessage={successMessage}
+            customInstruction={customInstruction}
+            setCustomInstruction={setCustomInstruction}
           />
 
           <ThreadPreview

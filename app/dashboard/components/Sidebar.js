@@ -1,4 +1,5 @@
-import { FiGrid, FiSettings, FiLogOut } from "react-icons/fi";
+import { FiGrid, FiSettings, FiLogOut, FiHome } from "react-icons/fi";
+import Link from "next/link";
 
 export default function Sidebar({
   user,
@@ -53,6 +54,13 @@ export default function Sidebar({
             <FiSettings className="w-5 h-5" />
             <span>Settings</span>
           </button>
+          <Link
+            href="/"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition duration-200"
+          >
+            <FiHome className="w-5 h-5" />
+            <span>Go to Home</span>
+          </Link>
         </nav>
       </div>
 
